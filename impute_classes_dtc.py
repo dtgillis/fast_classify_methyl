@@ -3,7 +3,6 @@ import numpy as np
 import sys
 from sklearn.grid_search import GridSearchCV
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.preprocessing import scale
 from scipy.stats import pearsonr
 import argparse
 from sklearn.metrics import make_scorer
@@ -93,10 +92,11 @@ def main_program():
     x_final = x
     y = np_y[:, 1]
     param_grid = {'criterion': ['gini', 'entropy'],
-                      'max_depth': range(1, 5), 'min_samples_split': range(1, 5)}
+                      'max_depth': range(1, 11), 'min_samples_split': range(1, 5)}
     cv = StratifiedKFold(y=y, n_folds=5)
     clf = GridSearchCV(DecisionTreeClassifier(), param_grid=param_grid, cv=cv, scoring=make_scorer(clean_pearsonr), n_jobs=4)
     clf.fit(X=x, y=y)
+
     total_time = time.time() - start_time
     f = open(args.out_file[0], mode='ab')
     out = '{0:s} {1:f} {2:f}'.format(args.snp_name[0], clf.best_score_, total_time)

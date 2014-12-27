@@ -107,12 +107,14 @@ def main_program():
     end_time = time.time()
 
     total_time = end_time - start_time
+    #write out results
     f = open(args.out_file[0], mode='ab')
-    out = '{0:s} {1:f} {2:f} l1_ratio {3:f} alpha {4:f} loss {5:s}\n'.format(args.snp_name[0], clf.best_score_,
-                                                                             total_time,
-                                                                             clf.best_params_['l1_ratio'],
-                                                                             clf.best_params_['alpha'],
-                                                                             clf.best_params_['loss'])
+    out = '{0:s} {1:f} {2:f} '.format(args.snp_name[0], clf.best_score_, total_time)
+
+    for param, value in clf.best_params_.items():
+        out += '{0:s} {1:s} '.format(param, str(value))
+
+    out += os.linesep
     f.write(out)
     f.close()
 
