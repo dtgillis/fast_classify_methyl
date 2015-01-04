@@ -80,8 +80,7 @@ def main_program():
     if len(valid_cols) == 0:
         print 'No valid samples with genotypes snp {0:s}'.format(args.snp_name[0])
         f = open(args.out_file[0], mode='a')
-        out = '{1:s},{0:1.2f},{0:1.2f},{0:1.2f},{0:1.2f},{0:1.2f},{0:1.2f},' \
-            '{0:1.2f},{0:1.2f},{0:1.2f},{0:1.2f},{0:1.2f},{0:1.2f}\n'.format(.0, args.snp_name[0])
+        out = '{0:s} 0.0\n'.format(args.snp_name[0])
         f.write(out)
         sys.exit(1)
     #sort by row number
@@ -102,7 +101,7 @@ def main_program():
     l1_range = np.arange(0, 1, l1_first_split)
     param_grid = dict(alpha=a_range, l1_ratio=l1_range, loss=loss)
     cv = StratifiedKFold(y=y, n_folds=5)
-    clf = GridSearchCV(SGDClassifier(penalty='elasticnet', class_weight='auto'), param_grid=param_grid, cv=cv, scoring=make_scorer(clean_pearsonr), refit=True, n_jobs=7)
+    clf = GridSearchCV(SGDClassifier(penalty='elasticnet', class_weight='auto'), param_grid=param_grid, cv=cv, scoring=make_scorer(clean_pearsonr), refit=True, n_jobs=4)
     clf.fit(X=x, y=y)
     end_time = time.time()
 
