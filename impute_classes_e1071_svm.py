@@ -77,8 +77,8 @@ def main_program():
     e1071 = importr('e1071')
     print "starting r"
     print "fitting using cross validation"
-    gamma = 2**np.arange(-5.0, 15.0, 2.0)
-    cost = 2**np.arange(-15, 3, 2.0)
+    gamma = 2**np.arange(-1, 1, 1.0)
+    cost = 2**np.arange(-1, 1, 1.0)
     # fit model using tune in R package.
     fit = e1071.tune_svm(x=x_final, y=y, gamma=gamma, cost=cost)
     best_model = fit.rx2('best.model')
