@@ -93,15 +93,14 @@ def main_program():
     x = scale(x)
     x_final = x
     y = np_y[:, 1]
-    C_range = 2.0 ** np.arange(-15, -10)
-    kernel = ['linear']
-    gamma_range = [1.0]
-    param_grid = dict(C=C_range, gamma=gamma_range, kernel=kernel)
+    C_range = 10.0 ** np.arange(-5, 5, 1.0)
+    gamma_range = 10.0 ** np.arange(-5, 5, 1.0)
+    param_grid = dict(C=C_range, gamma=gamma_range)
     cv = StratifiedKFold(y=y, n_folds=5)
-    clf = GridSearchCV(SVC(cache_size=1000), param_grid=param_grid, cv=cv, scoring=make_scorer(clean_pearsonr), refit=True, n_jobs=5)
+    clf = GridSearchCV(SVC(cache_size=2000), param_grid=param_grid, cv=cv, scoring=make_scorer(clean_pearsonr), refit=True, n_jobs=8)
     clf.fit(X=x, y=y)
     f = open(args.out_file[0], mode='ab')
-    out = '{0:s} {1:f} gamma {2:f} C {3:f} kernel {4:s}\n'.format(args.snp_name[0], clf.best_score_, clf.best_params_['gamma'], clf.best_params_['C'], clf.best_params_['kernel'])
+    out = '{0:s} {1:f} gamma {2:f} C {3:f}\n'.format(args.snp_name[0], clf.best_score_, clf.best_params_['gamma'], clf.best_params_['C'])
     f.write(out)
     f.close()
     print clf.best_params_
