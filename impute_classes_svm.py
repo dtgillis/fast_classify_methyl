@@ -9,7 +9,7 @@ import argparse
 from sklearn.metrics import make_scorer
 from sklearn.cross_validation import StratifiedKFold
 from sklearn.linear_model import LogisticRegression
-
+from time import time
 
 
 def clean_pearsonr(y_true, y_pred):
@@ -41,6 +41,7 @@ def main_program():
     else:
         os.chdir(args.work_dir[0])
 
+    start_time = time()
     beta_file = open(args.beta_file[0], 'r')
     # get methyl sample names
     samples = [sample.strip("\"") for sample in beta_file.readline().strip().split()]
@@ -79,8 +80,7 @@ def main_program():
     if len(valid_cols) == 0:
         print 'No valid samples with genotypes snp {0:s}'.format(args.snp_name[0])
         f = open(args.out_file[0], mode='a')
-        out = '{1:s},{0:1.2f},{0:1.2f},{0:1.2f},{0:1.2f},{0:1.2f},{0:1.2f},' \
-            '{0:1.2f},{0:1.2f},{0:1.2f},{0:1.2f},{0:1.2f},{0:1.2f}\n'.format(.0, args.snp_name[0])
+        out = '{0:s} 0.0\n'.format(args.snp_name[0])
         f.write(out)
         sys.exit(1)
     #sort by row number
@@ -93,14 +93,18 @@ def main_program():
     x = scale(x)
     x_final = x
     y = np_y[:, 1]
-    C_range = 10.0 ** np.arange(-5, 5, 1.0)
-    gamma_range = 10.0 ** np.arange(-5, 5, 1.0)
+    C_range = 10.0 ** np.arange(-2, 7, 1.0)
+    gamma_range = 10.0 ** np.arange(-10, 0, 1.0)
     param_grid = dict(C=C_range, gamma=gamma_range)
     cv = StratifiedKFold(y=y, n_folds=5)
-    clf = GridSearchCV(SVC(cache_size=2000), param_grid=param_grid, cv=cv, scoring=make_scorer(clean_pearsonr), refit=True, n_jobs=8)
+    clf = GridSearchCV(SVC(cache_size=3000), param_grid=param_grid, cv=cv, scoring=make_scorer(clean_pearsonr), refit=True, n_jobs=4)
     clf.fit(X=x, y=y)
+    total_time = time() - start_time
     f = open(args.out_file[0], mode='ab')
-    out = '{0:s} {1:f} gamma {2:f} C {3:f}\n'.format(args.snp_name[0], clf.best_score_, clf.best_params_['gamma'], clf.best_params_['C'])
+    out = '{0:s} {1:f} {2:f}'.format(args.snp_name[0], clf.best_score_, total_time)
+    for param, value in clf.best_params_.items():
+        out += ' {0:f} {1:f}'.format(param, value)
+    out += os.linesep
     f.write(out)
     f.close()
     print clf.best_params_
